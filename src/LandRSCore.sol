@@ -1,8 +1,9 @@
 pragma solidity ^0.6.7;
 
-import "@evolutionland/common/contracts/interfaces/ISettingsRegistry.sol";
 import "zeppelin-solidity/utils/Address.sol";
 import "./storage/LibRegisterStorage.sol";
+import "./interfaces/ISettingsRegistry.sol";
+import "./common/Mine.sol";
 
 contract LandRSCore is
     LibRegisterStorage
@@ -16,10 +17,10 @@ contract LandRSCore is
          || selector == hex"f23bcebc" // bytes4(keccak256("claimLandResource(uint256)"))
          || selector == hex"0cfacb57" // bytes4(keccak256("claimItemResource(address,uint256)"))
 
-           )
-        address registry = LibRegisterStorage.getStorage().registry;
-        address landMine = ISettingsRegistry(registry).addressOf(CONTRACT_LAND_MINE);
-        return Address.functionDelegateCall(landMine, msg.data, "LandRSCore: StartMining call failed");
+           ) {
+            address landMine = ISettingsRegistry(registry()).addressOf(CONTRACT_LAND_MINE);
+            return Address.functionDelegateCall(landMine, msg.data, "LandRSCore: StartMining call failed");
+        }
     }
 
     receive() external payable {}

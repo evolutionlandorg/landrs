@@ -1,6 +1,7 @@
 pragma solidity ^0.6.7;
 
 library LandStorage {
+
     enum StorageId {
         SUPPORTEDINTERFACES,
         AUTHORITY,

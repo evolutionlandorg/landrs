@@ -1,6 +1,8 @@
 pragma solidity ^0.6.7;
 
 import "../storage/LibRegisterStorage.sol";
+import "../storage/LibReleaseStorage.sol";
+import "./ItemBar.sol";
 
 contract Mine {
 
@@ -13,12 +15,15 @@ contract Mine {
 	// rate precision
 	uint128 public constant RATE_PRECISION = 10**8;
 
+    // 0x434f4e54524143545f4c414e445f4d494e450000000000000000000000000000
+    bytes32 public constant CONTRACT_LAND_MINE = "CONTRACT_LAND_MINE";
+
     function registry() public view returns (address) {
         return LibRegisterStorage.getStorage().registry;
     }
 
     function resourceReleaseStartTime() public view returns (uint256) {
-        return LibRegisterStorage.getStorage().resourceReleaseStartTime;
+        return LibReleaseStorage.getStorage().resourceReleaseStartTime;
     }
 
 	function getTotalMiningStrength(uint256 _landId, address _resource) public view returns (uint256) {
