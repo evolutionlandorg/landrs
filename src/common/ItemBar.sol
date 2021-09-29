@@ -11,10 +11,10 @@ contract ItemBar is Apostle {
 	using SafeMath for *;
 
 	// rate precision
-	uint128 public constant RATE_PRECISION = 10**8;
+	uint128 internal constant RATE_PRECISION = 10**8;
 
 	//0x4655524e4143455f4954454d5f4d494e455f4645450000000000000000000000
-	bytes32 public constant FURNACE_ITEM_MINE_FEE = "FURNACE_ITEM_MINE_FEE";
+	bytes32 internal constant FURNACE_ITEM_MINE_FEE = "FURNACE_ITEM_MINE_FEE";
 
     function maxAmount() public view returns (uint256) {
         return LibMaxAmountStorage.getStorage().maxAmount;

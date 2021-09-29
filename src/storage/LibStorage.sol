@@ -5,8 +5,7 @@ library LibStorage {
     enum StorageId {
         SUPPORTEDINTERFACES,
         AUTHORITY,
-        OWNER,
-        SINGLETONLOCK,
+        SLOT_2,
         REGISTRY,
         RESOURCERELEASESTARTTIME,
         ATTENPERDAY,

@@ -2,7 +2,7 @@ pragma solidity ^0.6.7;
 
 import "./LibStorage.sol";
 
-library LibRegisterStorage {
+library LibRegistryStorage {
 
     struct Storage {
         address registry;
