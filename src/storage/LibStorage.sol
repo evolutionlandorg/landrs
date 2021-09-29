@@ -1,6 +1,6 @@
 pragma solidity ^0.6.7;
 
-library LandStorage {
+library LibStorage {
 
     enum StorageId {
         SUPPORTEDINTERFACES,

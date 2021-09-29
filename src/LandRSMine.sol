@@ -1,7 +1,13 @@
 pragma solidity ^0.6.7;
 
+import "zeppelin-solidity/token/ERC721/IERC721.sol";
 import "./storage/LibMineStateStorage.sol";
+import "./storage/LibMinerStorage.sol";
 import "./storage/LibItemBalanceStorage.sol";
+import "./interfaces/ILandBase.sol";
+import "./interfaces/IInterstellarEncoder.sol";
+import "./interfaces/ITokenUse.sol";
+import "./interfaces/IMinerObject.sol";
 import "./common/Mine.sol";
 
 contract LandRSMine is Mine {
@@ -81,8 +87,8 @@ contract LandRSMine is Mine {
 		_mineResource(_landTokenId, _fire);
 		_mineResource(_landTokenId, _soil);
 
-        LibMineStateStorage.Storage storage stor = LibOwnableStorage.getStorage();
-        stor.land2ResourceMineState[_landTokenId].lastUpdateTime = uint128(now);
+        LibMineStateStorage.Storage storage stor = LibMineStateStorage.getStorage(_landTokenId);
+        stor.lastUpdateTime = uint128(block.timestamp);
 	}
 
 	function _distribution(
@@ -94,7 +100,7 @@ contract LandRSMine is Mine {
 		uint256 landBalance =
 			minedBalance.mul(RATE_PRECISION).div(barsRate.add(RATE_PRECISION));
 		uint256 barsBalance = minedBalance.sub(landBalance);
-		for (uint256 i = 0; i < maxAmount; i++) {
+		for (uint256 i = 0; i < maxAmount(); i++) {
 			(address itemToken, uint256 itemId, address resouce) =
 				getBarItem(_landId, i);
 			if (itemToken != address(0) && resouce == _resource) {
@@ -146,7 +152,7 @@ contract LandRSMine is Mine {
 			);
 		}
 
-        LibMineStateStorage.getStorage().land2ResourceMineState[_landId].mintedBalance[_resource] = getLandMinedBalance(_landId, _resource).add(landBalance);
+        LibMineStateStorage.getStorage(_landId).mintedBalance[_resource] = getLandMinedBalance(_landId, _resource).add(landBalance);
 	}
 
 	function _calculateMinedBalance(
@@ -219,7 +225,7 @@ contract LandRSMine is Mine {
 		// require the permission from land owner;
 		require(
 			msg.sender ==
-				ERC721(registry().addressOf(CONTRACT_OBJECT_OWNERSHIP)).ownerOf(
+				IERC721(registry().addressOf(CONTRACT_OBJECT_OWNERSHIP)).ownerOf(
 					_landTokenId
 				),
 			"Must be the owner of the land"
@@ -237,13 +243,13 @@ contract LandRSMine is Mine {
 		// update status!
 		mine(_landTokenId);
 
-		uint256 _index =
-			land2ResourceMineState[_landTokenId].miners[_resource].length;
+        LibMineStateStorage.Storage storage stor = LibMineStateStorage.getStorage(_landTokenId);
+		uint256 _index = stor.miners[_resource].length;
 
-		land2ResourceMineState[_landTokenId].totalMiners += 1;
+		stor.totalMiners += 1;
 
 		require(
-			land2ResourceMineState[_landTokenId].totalMiners <= maxMiners,
+			stor.totalMiners <= maxMiners(),
 			"Land: EXCEED_MAXAMOUNT"
 		);
 
@@ -255,10 +261,10 @@ contract LandRSMine is Mine {
 		uint256 strength =
 			IMinerObject(miner).strengthOf(_tokenId, _resource, _landTokenId);
 
-		land2ResourceMineState[_landTokenId].miners[_resource].push(_tokenId);
-		land2ResourceMineState[_landTokenId].totalMinerStrength[_resource] = land2ResourceMineState[_landTokenId].totalMinerStrength[_resource].add(strength);
+		stor.miners[_resource].push(_tokenId);
+		stor.totalMinerStrength[_resource] = stor.totalMinerStrength[_resource].add(strength);
 
-		miner2Index[_tokenId] = MinerStatus({
+		LibMinerStorage.getStorage().miner2Index[_tokenId] = LibMinerStorage.MinerStatus({
 			landTokenId: _landTokenId,
 			resource: _resource,
 			indexInResource: uint64(_index)
