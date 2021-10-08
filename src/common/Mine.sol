@@ -4,7 +4,6 @@ import "../storage/LibAuthStorage.sol";
 import "../storage/LibSlot2Storage.sol";
 import "../storage/LibRegistryStorage.sol";
 import "../storage/LibReleaseStorage.sol";
-import "../interfaces/ISettingsRegistry.sol";
 import "./ItemBar.sol";
 
 contract Mine is ItemBar {
@@ -20,9 +19,9 @@ contract Mine is ItemBar {
 		address _resource,
 		uint256 strength
 	);
-	event ResourceClaimed(
+	event LandResourceClaimed(
 		address owner,
-		uint256 landTokenId,
+		uint256 landId,
 		uint256 goldBalance,
 		uint256 woodBalance,
 		uint256 waterBalance,
@@ -78,10 +77,6 @@ contract Mine is ItemBar {
     }
 
     /////////////////////////////////////////////////////////////////////
-
-    function registry() public view returns (ISettingsRegistry) {
-        return ISettingsRegistry(LibRegistryStorage.getStorage().registry);
-    }
 
     function resourceReleaseStartTime() public view returns (uint256) {
         return LibReleaseStorage.getStorage().resourceReleaseStartTime;

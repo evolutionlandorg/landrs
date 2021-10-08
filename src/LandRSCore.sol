@@ -1,10 +1,10 @@
 pragma solidity ^0.6.7;
 
 import "zeppelin-solidity/utils/Address.sol";
-import "./interfaces/ISettingsRegistry.sol";
 import "./common/Mine.sol";
+import "./common/Registry.sol";
 
-contract LandRSCore is Mine {
+contract LandRSCore is Registry, Mine {
 
     fallback() external payable {
         bytes4 selector = msg.sig;
@@ -15,7 +15,7 @@ contract LandRSCore is Mine {
          || selector == hex"0cfacb57" // bytes4(keccak256("claimItemResource(address,uint256)"))
 
            ) {
-            address landMine = ISettingsRegistry(registry()).addressOf(CONTRACT_LAND_MINE);
+            address landMine = registry().addressOf(CONTRACT_LAND_MINE);
             Address.functionDelegateCall(landMine, msg.data, "LandRSCore: StartMining call failed");
         }
     }

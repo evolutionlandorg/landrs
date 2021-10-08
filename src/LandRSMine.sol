@@ -8,10 +8,12 @@ import "./interfaces/ILandBase.sol";
 import "./interfaces/IInterstellarEncoder.sol";
 import "./interfaces/ITokenUse.sol";
 import "./interfaces/IMinerObject.sol";
+import "./interfaces/IMintableERC20.sol";
 import "./common/Mine.sol";
 import "./common/DSAuth.sol";
+import "./common/Registry.sol";
 
-contract LandRSMine is DSAuth, Mine {
+contract LandRSMine is DSAuth, Registry, Mine {
 
 	// get amount of speed uint at this moment
 	function _getReleaseSpeedInSeconds(uint256 _tokenId, uint256 _time) internal view returns (uint256 currentSpeed) {
@@ -333,5 +335,47 @@ contract LandRSMine is DSAuth, Mine {
 		delete LibMinerStorage.getStorage().miner2Index[_tokenId];
 
 		emit StopMining(_tokenId, landTokenId, resource, strength);
+	}
+
+	function claimLandResource(uint256 _landId) public {
+		require(
+			msg.sender == IERC721(registry().addressOf(CONTRACT_OBJECT_OWNERSHIP)).ownerOf(_landId),
+			"Land: ONLY_LANDER"
+		);
+
+		address gold = registry().addressOf(CONTRACT_GOLD_ERC20_TOKEN);
+		address wood = registry().addressOf(CONTRACT_WOOD_ERC20_TOKEN);
+		address water = registry().addressOf(CONTRACT_WATER_ERC20_TOKEN);
+		address fire = registry().addressOf(CONTRACT_FIRE_ERC20_TOKEN);
+		address soil = registry().addressOf(CONTRACT_SOIL_ERC20_TOKEN);
+		_mineAllResource(_landId, gold, wood, water, fire, soil);
+
+		uint256 goldBalance = _claimLandResource(_landId, gold);
+		uint256 woodBalance = _claimLandResource(_landId, wood);
+		uint256 waterBalance = _claimLandResource(_landId, water);
+		uint256 fireBalance = _claimLandResource(_landId, fire);
+		uint256 soilBalance = _claimLandResource(_landId, soil);
+
+		emit LandResourceClaimed(
+			msg.sender,
+			_landId,
+			goldBalance,
+			woodBalance,
+			waterBalance,
+			fireBalance,
+			soilBalance
+		);
+	}
+
+	function _claimLandResource(uint256 _landId, address _resource) internal returns (uint256) {
+		uint256 balance = getLandMinedBalance(_landId, _resource);
+		if (balance > 0) {
+			IMintableERC20(_resource).mint(msg.sender, balance);
+            LibMineStateStorage.Storage storage stor = LibMineStateStorage.getStorage(_landId);
+			stor.mintedBalance[_resource] = 0;
+			return balance;
+		} else {
+			return 0;
+		}
 	}
 }
