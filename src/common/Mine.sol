@@ -73,17 +73,11 @@ contract Mine is ItemBar {
     // 0x434f4e54524143545f4c414e445f4d494e450000000000000000000000000000
     bytes32 internal constant CONTRACT_LAND_MINE = "CONTRACT_LAND_MINE";
 
-    function authority() public view returns (address) {
-        return LibAuthStorage.getStorage().authority;
-    }
-
-    function owner() public view returns (address) {
-        return LibSlot2Storage.getStorage().owner;
-    }
-
-    function singletonLock() public view returns (bool) {
+    function singletonLock() internal view returns (bool) {
         return LibSlot2Storage.getStorage().singletonLock;
     }
+
+    /////////////////////////////////////////////////////////////////////
 
     function registry() public view returns (ISettingsRegistry) {
         return ISettingsRegistry(LibRegistryStorage.getStorage().registry);

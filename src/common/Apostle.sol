@@ -25,4 +25,13 @@ contract Apostle {
 	function landWorkingOn(uint256 _apostleTokenId) public view returns (uint256) {
 		return LibMinerStorage.getStorage().miner2Index[_apostleTokenId].landTokenId;
 	}
+
+    function getMinerIndexInResource(uint256 _apostleTokenId) public view returns (uint64) {
+        return LibMinerStorage.getStorage().miner2Index[_apostleTokenId].indexInResource;
+    }
+
+    function getMinerResource(uint256 _apostleTokenId) public view returns (address) {
+        return LibMinerStorage.getStorage().miner2Index[_apostleTokenId].resource;
+    }
+
 }
