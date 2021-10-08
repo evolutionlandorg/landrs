@@ -378,4 +378,52 @@ contract LandRSMine is DSAuth, Registry, Mine {
 			return 0;
 		}
 	}
+
+	function availableLandResources(
+		uint256 _landId,
+		address[] memory _resources
+	) public view returns (uint256[] memory) {
+		uint256[] memory availables = new uint256[](_resources.length);
+		for (uint256 i = 0; i < _resources.length; i++) {
+			uint256 mined = _calculateMinedBalance(_landId, _resources[i], now);
+			(uint256 available, ) =
+				_calculateResources(
+					address(0),
+					0,
+					_landId,
+					_resources[i],
+					mined
+				);
+			availables[i] = available.add(
+				getLandMinedBalance(_landId, _resources[i])
+			);
+		}
+		return availables;
+	}
+
+	function _calculateResources(
+		address _itemToken,
+		uint256 _itemId,
+		uint256 _landId,
+		address _resource,
+		uint256 _minedBalance
+	) internal view returns (uint256 landBalance, uint256 barResource) {
+		uint256 barsRate = getBarsRate(_landId, _resource);
+		// V5 yeild distribution
+		landBalance = _minedBalance.mul(RATE_PRECISION).div(barsRate.add(RATE_PRECISION));
+		if (barsRate > 0) {
+			uint256 barsBalance = _minedBalance.sub(landBalance);
+			for (uint256 i = 0; i < maxAmount(); i++) {
+				uint256 barBalance =
+					barsBalance.mul(getBarRate(_landId, _resource, i)).div(
+						barsRate
+					);
+				(barBalance, landBalance) = _payFee(barBalance, landBalance);
+				(address itemToken, uint256 itemId, ) = getBarItem(_landId, i);
+				if (_itemId == itemId && _itemToken == itemToken) {
+					barResource = barResource.add(barBalance);
+				}
+			}
+		}
+	}
 }
