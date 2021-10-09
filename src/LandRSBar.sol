@@ -1,18 +1,18 @@
 pragma solidity ^0.6.7;
 
-import "./interfaces/IERC721.sol";
-import "./interfaces/ILandRSMine.sol";
-import "./interfaces/IMetaDataTeller.sol";
-import "./interfaces/ILandBase.sol";
 import "./interfaces/IInterstellarEncoder.sol";
+import "./interfaces/IMetaDataTeller.sol";
+import "./interfaces/ILandRSMine.sol";
+import "./interfaces/ILandBase.sol";
+import "./interfaces/IERC721.sol";
+import "./storage/LibItemBalanceStorage.sol";
+import "./storage/LibItemStatusStorage.sol";
+import "./storage/LibMaxAmountStorage.sol";
+import "./storage/LibBarRateStorage.sol";
+import "./storage/LibBarsStorage.sol";
 import "./common/ItemBar.sol";
 import "./common/Registry.sol";
 import "./common/DSAuth.sol";
-import "./storage/LibItemStatusStorage.sol";
-import "./storage/LibBarsStorage.sol";
-import "./storage/LibBarRateStorage.sol";
-import "./storage/LibMaxAmountStorage.sol";
-import "./storage/LibItemBalanceStorage.sol";
 
 contract LandRSBar is DSAuth, Registry, ItemBar {
 	event Equip(uint256 indexed tokenId, address resource, uint256 index, address staker, address token, uint256 id);
@@ -20,9 +20,6 @@ contract LandRSBar is DSAuth, Registry, ItemBar {
 	event StartBarMining(uint256 barIndex, uint256 landId, address resource, uint256 rate);
 	event StopBarMining(uint256 barIndex, uint256 landId, address rate);
     event SetMaxLandBar(uint256 maxAmount);
-
-	// 0x434f4e54524143545f494e5445525354454c4c41525f454e434f444552000000
-	bytes32 public constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
 
 	// 0x55494e545f4954454d4241525f50524f544543545f504552494f440000000000
 	bytes32 public constant UINT_ITEMBAR_PROTECT_PERIOD = "UINT_ITEMBAR_PROTECT_PERIOD";

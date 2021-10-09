@@ -7,18 +7,6 @@ import "../storage/LibReleaseStorage.sol";
 import "./ItemBar.sol";
 
 contract Mine is ItemBar {
-	event StartMining(
-		uint256 minerTokenId,
-		uint256 landId,
-		address _resource,
-		uint256 strength
-	);
-	event StopMining(
-		uint256 minerTokenId,
-		uint256 landId,
-		address _resource,
-		uint256 strength
-	);
 	event LandResourceClaimed(
 		address owner,
 		uint256 landId,
@@ -44,13 +32,6 @@ contract Mine is ItemBar {
 	uint256 internal constant DENOMINATOR = 10000;
 
 	uint256 internal constant TOTAL_SECONDS = DENOMINATOR * (1 days);
-
-	// 0x434f4e54524143545f494e5445525354454c4c41525f454e434f444552000000
-	bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER =
-		"CONTRACT_INTERSTELLAR_ENCODER";
-
-	// 0x434f4e54524143545f544f4b454e5f5553450000000000000000000000000000
-	bytes32 internal constant CONTRACT_TOKEN_USE = "CONTRACT_TOKEN_USE";
 
     // 0x434f4e54524143545f4c414e445f4d494e450000000000000000000000000000
     bytes32 internal constant CONTRACT_LAND_MINE = "CONTRACT_LAND_MINE";
