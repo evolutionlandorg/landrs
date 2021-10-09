@@ -71,17 +71,17 @@ contract LandRSApostle is DSAuth, Registry, Apostle {
     }
 
     function stopMining(uint256 _tokenId) public {
-            address ownership = registry().addressOf(CONTRACT_OBJECT_OWNERSHIP);
-            address tokenuse = registry().addressOf(CONTRACT_TOKEN_USE);
-            address user = ITokenUse(tokenuse).getTokenUser(_tokenId);
-            if (IERC721(ownership).ownerOf(_tokenId) == msg.sender || user == msg.sender) {
-                ITokenUse(tokenuse).removeActivity(_tokenId, msg.sender);
-            } else {
-                // Land owner has right to stop mining
-                uint256 landTokenId = landWorkingOn(_tokenId);
-                require(msg.sender == IERC721(ownership).ownerOf(landTokenId), "Land: ONLY_LANDER");
-                ITokenUse(tokenuse).removeActivity(_tokenId, user);
-            }
+        address ownership = registry().addressOf(CONTRACT_OBJECT_OWNERSHIP);
+        address tokenuse = registry().addressOf(CONTRACT_TOKEN_USE);
+        address user = ITokenUse(tokenuse).getTokenUser(_tokenId);
+        if (IERC721(ownership).ownerOf(_tokenId) == msg.sender || user == msg.sender) {
+            ITokenUse(tokenuse).removeActivity(_tokenId, msg.sender);
+        } else {
+            // Land owner has right to stop mining
+            uint256 landTokenId = landWorkingOn(_tokenId);
+            require(msg.sender == IERC721(ownership).ownerOf(landTokenId), "Land: ONLY_LANDER");
+            ITokenUse(tokenuse).removeActivity(_tokenId, user);
+        }
     }
 
     function _stopMining(uint256 _tokenId) internal {
@@ -122,8 +122,6 @@ contract LandRSApostle is DSAuth, Registry, Apostle {
         }
 
         delete LibMinerStorage.getStorage().miner2Index[_tokenId];
-
         emit StopMining(_tokenId, landTokenId, resource, strength);
     }
-
 }

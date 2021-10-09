@@ -4,11 +4,11 @@ import "./LibStorage.sol";
 
 library LibMinerStorage {
 
-	struct MinerStatus {
-		uint256 landTokenId;
-		address resource;
-		uint64 indexInResource;
-	}
+    struct MinerStatus {
+        uint256 landTokenId;
+        address resource;
+        uint64 indexInResource;
+    }
 
     struct Storage {
         mapping(uint256 => MinerStatus) miner2Index;

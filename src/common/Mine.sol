@@ -26,7 +26,7 @@ contract Mine is ItemBar {
         return LibReleaseStorage.getStorage().resourceReleaseStartTime;
     }
 
-	function getTotalMiningStrength(uint256 _landId, address _resource) public view returns (uint256) {
-		return getLandMiningStrength(_landId, _resource).add(getBarsMiningStrength(_landId, _resource));
-	}
+    function getTotalMiningStrength(uint256 _landId, address _resource) public view returns (uint256) {
+        return getLandMiningStrength(_landId, _resource).add(getBarsMiningStrength(_landId, _resource));
+    }
 }

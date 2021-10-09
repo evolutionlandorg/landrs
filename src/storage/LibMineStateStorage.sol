@@ -4,23 +4,23 @@ import "./LibStorage.sol";
 
 library LibMineStateStorage {
 
-	// Struct for recording resouces on land which have already been pinged.
-	// 金, Evolution Land Gold
-	// 木, Evolution Land Wood
-	// 水, Evolution Land Water
-	// 火, Evolution Land fire
-	// 土, Evolution Land Silicon
+    // Struct for recording resouces on land which have already been pinged.
+    // 金, Evolution Land Gold
+    // 木, Evolution Land Wood
+    // 水, Evolution Land Water
+    // 火, Evolution Land fire
+    // 土, Evolution Land Silicon
 
     struct Storage {
-		mapping(address => uint256) mintedBalance;
-		mapping(address => uint256[]) miners;
-		mapping(address => uint256) totalMinerStrength;
-		uint256 lastUpdateSpeedInSeconds;
-		uint256 lastDestoryAttenInSeconds;
-		uint256 industryIndex;
-		uint128 lastUpdateTime;
-		uint64 totalMiners;
-		uint64 maxMiners;
+        mapping(address => uint256) mintedBalance;
+        mapping(address => uint256[]) miners;
+        mapping(address => uint256) totalMinerStrength;
+        uint256 lastUpdateSpeedInSeconds;
+        uint256 lastDestoryAttenInSeconds;
+        uint256 industryIndex;
+        uint128 lastUpdateTime;
+        uint64 totalMiners;
+        uint64 maxMiners;
     }
 
     function getStorage(uint256 landId) internal pure returns (Storage storage stor) {

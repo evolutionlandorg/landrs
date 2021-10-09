@@ -62,12 +62,12 @@ contract LandRSCore is DSAuth, Registry, Mine {
         Address.functionDelegateCall(landRSMine, msg.data, "ClaimItemResource: StartMining call failed");
     }
 
-	function batchClaimLandResource(uint256[] calldata _landTokenIds) external {
-		uint256 length = _landTokenIds.length;
-		for (uint256 i = 0; i < length; i++) {
-			claimLandResource(_landTokenIds[i]);
-		}
-	}
+    function batchClaimLandResource(uint256[] calldata _landTokenIds) external {
+        uint256 length = _landTokenIds.length;
+        for (uint256 i = 0; i < length; i++) {
+            claimLandResource(_landTokenIds[i]);
+        }
+    }
 
     function batchClaimItemResource(address[] calldata _itemTokens, uint256[] calldata _itemIds) external {
         require(_itemTokens.length == _itemIds.length, "Land: INVALID_LENGTH");
@@ -77,22 +77,22 @@ contract LandRSCore is DSAuth, Registry, Mine {
         }
     }
 
-	function batchStartMining(uint256[] calldata _tokenIds, uint256[] calldata _landTokenIds, address[] calldata _resources) external {
-		require(_tokenIds.length == _landTokenIds.length && _landTokenIds.length == _resources.length, "input error");
-		uint256 length = _tokenIds.length;
-		for (uint256 i = 0; i < length; i++) {
-			startMining(_tokenIds[i], _landTokenIds[i], _resources[i]);
-		}
-	}
+    function batchStartMining(uint256[] calldata _tokenIds, uint256[] calldata _landTokenIds, address[] calldata _resources) external {
+        require(_tokenIds.length == _landTokenIds.length && _landTokenIds.length == _resources.length, "input error");
+        uint256 length = _tokenIds.length;
+        for (uint256 i = 0; i < length; i++) {
+            startMining(_tokenIds[i], _landTokenIds[i], _resources[i]);
+        }
+    }
 
-	function devestAndClaim(address _itemToken, uint256 _tokenId, uint256 _index) external {
-		divest(_tokenId, _index);
-		claimItemResource(_itemToken, _tokenId);
+    function devestAndClaim(address _itemToken, uint256 _tokenId, uint256 _index) external {
+        divest(_tokenId, _index);
+        claimItemResource(_itemToken, _tokenId);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
 
-	function getReleaseSpeed(uint256,address,uint256) external view {
+    function getReleaseSpeed(uint256,address,uint256) external view {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
         Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: getReleaseSpeed call failed");
     }
@@ -102,17 +102,17 @@ contract LandRSCore is DSAuth, Registry, Mine {
         Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: AvailableItemResources call failed");
     }
 
-	function availableLandResources(uint256,address[] calldata) external view {
+    function availableLandResources(uint256,address[] calldata) external view {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
         Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: AvailableLandResources call failed");
     }
 
-	function enhanceStrengthRateByIndex(address,uint256,uint256) external view {
+    function enhanceStrengthRateByIndex(address,uint256,uint256) external view {
         address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
         Address.functionStaticCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateByIndex call failed");
     }
 
-	function enhanceStrengthRateOf(address,uint256) external view {
+    function enhanceStrengthRateOf(address,uint256) external view {
         address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
         Address.functionStaticCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateOf call failed");
     }

@@ -4,12 +4,12 @@ import "./LibStorage.sol";
 
 library LibItemStatusStorage {
 
-	// bar status
-	struct Status {
-		address staker;
-		uint256 tokenId;
-		uint256 index;
-	}
+    // bar status
+    struct Status {
+        address staker;
+        uint256 tokenId;
+        uint256 index;
+    }
 
     struct Storage {
         // (itemTokenAddress => (itemTokenId => STATUS))

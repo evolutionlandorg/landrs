@@ -4,13 +4,13 @@ import "./LibStorage.sol";
 
 library LibBarsStorage {
 
-	// land bar
-	struct Bar {
-		address staker;
-		address token;
-		uint256 id;
-		address resource;
-	}
+    // land bar
+    struct Bar {
+        address staker;
+        address token;
+        uint256 id;
+        address resource;
+    }
 
     struct Storage {
         // (landTokenId => (landBarIndex => BAR))
