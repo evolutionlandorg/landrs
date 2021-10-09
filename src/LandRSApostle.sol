@@ -13,64 +13,64 @@ import "./common/DSAuth.sol";
 import "./common/Apostle.sol";
 
 contract LandRSApostle is DSAuth, Registry, Apostle {
-	event StartMining(uint256 minerTokenId, uint256 landId, address _resource, uint256 strength);
-	event StopMining(uint256 minerTokenId, uint256 landId, address _resource, uint256 strength);
+    event StartMining(uint256 minerTokenId, uint256 landId, address _resource, uint256 strength);
+    event StopMining(uint256 minerTokenId, uint256 landId, address _resource, uint256 strength);
     event SetMaxMiner(uint256 maxMiners);
 
-	bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
-	bytes32 internal constant CONTRACT_OBJECT_OWNERSHIP = "CONTRACT_OBJECT_OWNERSHIP";
-	bytes32 internal constant CONTRACT_TOKEN_USE = "CONTRACT_TOKEN_USE";
+    bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
+    bytes32 internal constant CONTRACT_OBJECT_OWNERSHIP = "CONTRACT_OBJECT_OWNERSHIP";
+    bytes32 internal constant CONTRACT_TOKEN_USE = "CONTRACT_TOKEN_USE";
 
-	function setMaxMiners(uint256 _maxMiners) public auth {
-		require(_maxMiners > maxMiners(), "Land: INVALID_MAXMINERS");
-		LibMaxMinersStorage.getStorage().maxMiners = _maxMiners;
+    function setMaxMiners(uint256 _maxMiners) public auth {
+        require(_maxMiners > maxMiners(), "Land: INVALID_MAXMINERS");
+        LibMaxMinersStorage.getStorage().maxMiners = _maxMiners;
         emit SetMaxMiner(maxMiners());
-	}
+    }
 
-	// both for own _tokenId or hired one
-	function startMining(
-		uint256 _tokenId,
-		uint256 _landTokenId,
-		address _resource
-	) public {
-		// require the permission from land owner;
-		require(
-			msg.sender == IERC721(registry().addressOf(CONTRACT_OBJECT_OWNERSHIP)).ownerOf(_landTokenId),
-			"Must be the owner of the land"
-		);
+    // both for own _tokenId or hired one
+    function startMining(
+        uint256 _tokenId,
+        uint256 _landTokenId,
+        address _resource
+    ) public {
+        // require the permission from land owner;
+        require(
+            msg.sender == IERC721(registry().addressOf(CONTRACT_OBJECT_OWNERSHIP)).ownerOf(_landTokenId),
+            "Must be the owner of the land"
+        );
 
-		// make sure that _tokenId won't be used repeatedly
-		require(landWorkingOn(_tokenId) == 0);
-		ITokenUse(registry().addressOf(CONTRACT_TOKEN_USE)).addActivity(_tokenId, msg.sender, 0);
-		// update status!
-		ILandRSMine(address(this)).mine(_landTokenId);
+        // make sure that _tokenId won't be used repeatedly
+        require(landWorkingOn(_tokenId) == 0);
+        ITokenUse(registry().addressOf(CONTRACT_TOKEN_USE)).addActivity(_tokenId, msg.sender, 0);
+        // update status!
+        ILandRSMine(address(this)).mine(_landTokenId);
         LibMineStateStorage.Storage storage stor = LibMineStateStorage.getStorage(_landTokenId);
-		uint256 _index = stor.miners[_resource].length;
-		stor.totalMiners += 1;
+        uint256 _index = stor.miners[_resource].length;
+        stor.totalMiners += 1;
 
-		require(stor.totalMiners <= maxMiners(), "Land: EXCEED_MAXAMOUNT");
+        require(stor.totalMiners <= maxMiners(), "Land: EXCEED_MAXAMOUNT");
 
-		address miner = IInterstellarEncoder(registry().addressOf(CONTRACT_INTERSTELLAR_ENCODER)).getObjectAddress(_tokenId);
-		uint256 strength = IMinerObject(miner).strengthOf(_tokenId, _resource, _landTokenId);
+        address miner = IInterstellarEncoder(registry().addressOf(CONTRACT_INTERSTELLAR_ENCODER)).getObjectAddress(_tokenId);
+        uint256 strength = IMinerObject(miner).strengthOf(_tokenId, _resource, _landTokenId);
 
-		stor.miners[_resource].push(_tokenId);
-		stor.totalMinerStrength[_resource] = stor.totalMinerStrength[_resource].add(strength);
+        stor.miners[_resource].push(_tokenId);
+        stor.totalMinerStrength[_resource] = stor.totalMinerStrength[_resource].add(strength);
 
-		LibMinerStorage.getStorage().miner2Index[_tokenId] = LibMinerStorage.MinerStatus({
-			landTokenId: _landTokenId,
-			resource: _resource,
-			indexInResource: uint64(_index)
-		});
+        LibMinerStorage.getStorage().miner2Index[_tokenId] = LibMinerStorage.MinerStatus({
+            landTokenId: _landTokenId,
+            resource: _resource,
+            indexInResource: uint64(_index)
+        });
 
-		emit StartMining(_tokenId, _landTokenId, _resource, strength);
-	}
+        emit StartMining(_tokenId, _landTokenId, _resource, strength);
+    }
 
-	// Only trigger from Token Activity.
-	function activityStopped(uint256 _tokenId) public auth {
-		_stopMining(_tokenId);
-	}
+    // Only trigger from Token Activity.
+    function activityStopped(uint256 _tokenId) public auth {
+        _stopMining(_tokenId);
+    }
 
-	function stopMining(uint256 _tokenId) public {
+    function stopMining(uint256 _tokenId) public {
             address ownership = registry().addressOf(CONTRACT_OBJECT_OWNERSHIP);
             address tokenuse = registry().addressOf(CONTRACT_TOKEN_USE);
             address user = ITokenUse(tokenuse).getTokenUser(_tokenId);
@@ -82,48 +82,48 @@ contract LandRSApostle is DSAuth, Registry, Apostle {
                 require(msg.sender == IERC721(ownership).ownerOf(landTokenId), "Land: ONLY_LANDER");
                 ITokenUse(tokenuse).removeActivity(_tokenId, user);
             }
-	}
+    }
 
-	function _stopMining(uint256 _tokenId) internal {
-		// remove the miner from land2ResourceMineState;
-		uint64 minerIndex = getMinerIndexInResource(_tokenId);
-		address resource = getMinerResource(_tokenId);
-		uint256 landTokenId = landWorkingOn(_tokenId);
+    function _stopMining(uint256 _tokenId) internal {
+        // remove the miner from land2ResourceMineState;
+        uint64 minerIndex = getMinerIndexInResource(_tokenId);
+        address resource = getMinerResource(_tokenId);
+        uint256 landTokenId = landWorkingOn(_tokenId);
 
-		// update status!
-		ILandRSMine(address(this)).mine(landTokenId);
+        // update status!
+        ILandRSMine(address(this)).mine(landTokenId);
 
         LibMineStateStorage.Storage storage stor = LibMineStateStorage.getStorage(landTokenId);
 
-		uint64 lastMinerIndex = uint64(stor.miners[resource].length.sub(1));
-		uint256 lastMiner = stor.miners[resource][lastMinerIndex];
+        uint64 lastMinerIndex = uint64(stor.miners[resource].length.sub(1));
+        uint256 lastMiner = stor.miners[resource][lastMinerIndex];
 
-		stor.miners[resource][minerIndex] = lastMiner;
+        stor.miners[resource][minerIndex] = lastMiner;
         stor.miners[resource].pop();
-		LibMinerStorage.getStorage().miner2Index[lastMiner].indexInResource = minerIndex;
-		stor.totalMiners -= 1;
+        LibMinerStorage.getStorage().miner2Index[lastMiner].indexInResource = minerIndex;
+        stor.totalMiners -= 1;
 
-		address miner = IInterstellarEncoder(registry().addressOf(CONTRACT_INTERSTELLAR_ENCODER)).getObjectAddress(_tokenId);
-		uint256 strength = IMinerObject(miner).strengthOf(_tokenId, resource, landTokenId);
+        address miner = IInterstellarEncoder(registry().addressOf(CONTRACT_INTERSTELLAR_ENCODER)).getObjectAddress(_tokenId);
+        uint256 strength = IMinerObject(miner).strengthOf(_tokenId, resource, landTokenId);
 
-		// for backward compatibility
-		// if strength can fluctuate some time in the future
+        // for backward compatibility
+        // if strength can fluctuate some time in the future
         uint256 totalMinerStrength = getLandMiningStrength(landTokenId, resource);
-		if (totalMinerStrength != 0) {
-			if (totalMinerStrength > strength) {
-				stor.totalMinerStrength[resource] = totalMinerStrength.sub(strength);
-			} else {
-				stor.totalMinerStrength[resource] = 0;
-			}
-		}
+        if (totalMinerStrength != 0) {
+            if (totalMinerStrength > strength) {
+                stor.totalMinerStrength[resource] = totalMinerStrength.sub(strength);
+            } else {
+                stor.totalMinerStrength[resource] = 0;
+            }
+        }
 
-		if (stor.totalMiners == 0) {
-			stor.totalMinerStrength[resource] = 0;
-		}
+        if (stor.totalMiners == 0) {
+            stor.totalMinerStrength[resource] = 0;
+        }
 
-		delete LibMinerStorage.getStorage().miner2Index[_tokenId];
+        delete LibMinerStorage.getStorage().miner2Index[_tokenId];
 
-		emit StopMining(_tokenId, landTokenId, resource, strength);
-	}
+        emit StopMining(_tokenId, landTokenId, resource, strength);
+    }
 
 }
