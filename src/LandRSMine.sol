@@ -1,19 +1,27 @@
 pragma solidity ^0.6.7;
 
-import "zeppelin-solidity/token/ERC721/IERC721.sol";
 import "./storage/LibMineStateStorage.sol";
 import "./storage/LibMinerStorage.sol";
 import "./storage/LibItemBalanceStorage.sol";
+import "./storage/LibMaxMinersStorage.sol";
 import "./interfaces/ILandBase.sol";
 import "./interfaces/IInterstellarEncoder.sol";
 import "./interfaces/ITokenUse.sol";
 import "./interfaces/IMinerObject.sol";
 import "./interfaces/IMintableERC20.sol";
+import "./interfaces/IERC721.sol";
 import "./common/Mine.sol";
 import "./common/DSAuth.sol";
 import "./common/Registry.sol";
 
 contract LandRSMine is DSAuth, Registry, Mine {
+    event SetMaxMiner(uint256 maxMiners);
+
+	function setMaxMiners(uint256 _maxMiners) public auth {
+		require(_maxMiners > maxMiners(), "Land: INVALID_MAXMINERS");
+		LibMaxMinersStorage.getStorage().maxMiners = _maxMiners;
+        emit SetMaxMiner(maxMiners());
+	}
 
 	// get amount of speed uint at this moment
 	function _getReleaseSpeedInSeconds(uint256 _tokenId, uint256 _time) internal view returns (uint256 currentSpeed) {
@@ -28,8 +36,7 @@ contract LandRSMine is DSAuth, Registry, Mine {
 
 		// max amount of speed unit of _tokenId for now
 		// suppose that speed_uint = 1 in this function
-		uint256 availableSpeedInSeconds =
-			TOTAL_SECONDS.sub(_time - resourceReleaseStartTime());
+		uint256 availableSpeedInSeconds = TOTAL_SECONDS.sub(_time - resourceReleaseStartTime());
 		return availableSpeedInSeconds;
 	}
 
@@ -394,9 +401,7 @@ contract LandRSMine is DSAuth, Registry, Mine {
 					_resources[i],
 					mined
 				);
-			availables[i] = available.add(
-				getLandMinedBalance(_landId, _resources[i])
-			);
+			availables[i] = available.add(getLandMinedBalance(_landId, _resources[i]));
 		}
 		return availables;
 	}
@@ -414,16 +419,59 @@ contract LandRSMine is DSAuth, Registry, Mine {
 		if (barsRate > 0) {
 			uint256 barsBalance = _minedBalance.sub(landBalance);
 			for (uint256 i = 0; i < maxAmount(); i++) {
-				uint256 barBalance =
-					barsBalance.mul(getBarRate(_landId, _resource, i)).div(
-						barsRate
-					);
+				uint256 barBalance = barsBalance.mul(getBarRate(_landId, _resource, i)).div(barsRate);
 				(barBalance, landBalance) = _payFee(barBalance, landBalance);
 				(address itemToken, uint256 itemId, ) = getBarItem(_landId, i);
 				if (_itemId == itemId && _itemToken == itemToken) {
 					barResource = barResource.add(barBalance);
 				}
 			}
+		}
+	}
+
+	function claimItemResource(address _itemToken, uint256 _itemId) public {
+		(address staker, uint256 landId) = getLandIdByItem(_itemToken, _itemId);
+		if (staker == address(0) && landId == 0) {
+			require(
+				IERC721(_itemToken).ownerOf(_itemId) == msg.sender,
+				"Land: ONLY_ITEM_OWNER"
+			);
+		} else {
+			require(staker == msg.sender, "Land: ONLY_ITEM_STAKER");
+			mine(landId);
+		}
+
+		address gold = registry().addressOf(CONTRACT_GOLD_ERC20_TOKEN);
+		address wood = registry().addressOf(CONTRACT_WOOD_ERC20_TOKEN);
+		address water = registry().addressOf(CONTRACT_WATER_ERC20_TOKEN);
+		address fire = registry().addressOf(CONTRACT_FIRE_ERC20_TOKEN);
+		address soil = registry().addressOf(CONTRACT_SOIL_ERC20_TOKEN);
+		uint256 goldBalance = _claimItemResource(_itemToken, _itemId, gold);
+		uint256 woodBalance = _claimItemResource(_itemToken, _itemId, wood);
+		uint256 waterBalance = _claimItemResource(_itemToken, _itemId, water);
+		uint256 fireBalance = _claimItemResource(_itemToken, _itemId, fire);
+		uint256 soilBalance = _claimItemResource(_itemToken, _itemId, soil);
+
+		emit ItemResourceClaimed(
+			msg.sender,
+			_itemToken,
+			_itemId,
+			goldBalance,
+			woodBalance,
+			waterBalance,
+			fireBalance,
+			soilBalance
+		);
+	}
+
+	function _claimItemResource(address _itemToken, uint256 _itemId, address _resource) internal returns (uint256) {
+		uint256 balance = getItemMinedBalance(_itemToken, _itemId, _resource);
+		if (balance > 0) {
+			IMintableERC20(_resource).mint(msg.sender, balance);
+			LibItemBalanceStorage.getStorage().itemMinedBalance[_itemToken][_itemId][_resource] = 0;
+			return balance;
+		} else {
+			return 0;
 		}
 	}
 }
