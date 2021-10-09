@@ -149,11 +149,6 @@ contract LandRSBar is DSAuth, Registry, ItemBar {
         _stopBarMinig(_index, _landTokenId, _resource);
     }
 
-    function devestAndClaim(address _itemToken, uint256 _tokenId, uint256 _index) public {
-        divest(_tokenId, _index);
-        ILandRSMine(address(this)).claimItemResource(_itemToken, _tokenId);
-    }
-
     /**
      * @dev Divest function, A NFT can Divest from EVO Bar (LandBar or ApostleBar).
      * @param _tokenId Token Id which to be unquiped.
