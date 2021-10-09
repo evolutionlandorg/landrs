@@ -1,17 +1,48 @@
 pragma solidity ^0.6.7;
 
-import "./storage/LibMineStateStorage.sol";
-import "./storage/LibMinerStorage.sol";
-import "./storage/LibItemBalanceStorage.sol";
-import "./storage/LibMaxMinersStorage.sol";
 import "./interfaces/ILandBase.sol";
 import "./interfaces/IInterstellarEncoder.sol";
 import "./interfaces/IMintableERC20.sol";
 import "./interfaces/IERC721.sol";
+import "./storage/LibMineStateStorage.sol";
+import "./storage/LibItemBalanceStorage.sol";
 import "./common/Mine.sol";
 import "./common/Registry.sol";
 
 contract LandRSMine is Registry, Mine {
+	event LandResourceClaimed(
+		address owner,
+		uint256 landId,
+		uint256 goldBalance,
+		uint256 woodBalance,
+		uint256 waterBalance,
+		uint256 fireBalance,
+		uint256 soilBalance
+	);
+	event ItemResourceClaimed(
+		address owner,
+		address itemToken,
+		uint256 itemTokenId,
+		uint256 goldBalance,
+		uint256 woodBalance,
+		uint256 waterBalance,
+		uint256 fireBalance,
+		uint256 soilBalance
+	);
+
+	// For every seconds, the speed will decrease by current speed multiplying (DENOMINATOR_in_seconds - seconds) / DENOMINATOR_in_seconds
+	// resource will decrease 1/10000 every day.
+	uint256 internal constant DENOMINATOR = 10000;
+	uint256 internal constant TOTAL_SECONDS = DENOMINATOR * (1 days);
+	bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
+	bytes32 internal constant CONTRACT_OBJECT_OWNERSHIP = "CONTRACT_OBJECT_OWNERSHIP";
+	bytes32 internal constant CONTRACT_GOLD_ERC20_TOKEN = "CONTRACT_GOLD_ERC20_TOKEN";
+	bytes32 internal constant CONTRACT_WOOD_ERC20_TOKEN = "CONTRACT_WOOD_ERC20_TOKEN";
+	bytes32 internal constant CONTRACT_WATER_ERC20_TOKEN = "CONTRACT_WATER_ERC20_TOKEN";
+	bytes32 internal constant CONTRACT_FIRE_ERC20_TOKEN = "CONTRACT_FIRE_ERC20_TOKEN";
+	bytes32 internal constant CONTRACT_SOIL_ERC20_TOKEN = "CONTRACT_SOIL_ERC20_TOKEN";
+	bytes32 internal constant FURNACE_ITEM_MINE_FEE = "FURNACE_ITEM_MINE_FEE";
+	bytes32 internal constant CONTRACT_LAND_BASE = "CONTRACT_LAND_BASE";
 
 	// get amount of speed uint at this moment
 	function _getReleaseSpeedInSeconds(uint256 _tokenId, uint256 _time) internal view returns (uint256 currentSpeed) {

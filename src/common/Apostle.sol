@@ -8,14 +8,6 @@ import "../storage/LibMaxMinersStorage.sol";
 contract Apostle {
 	using SafeMath for *;
 
-	// 0x434f4e54524143545f4f424a4543545f4f574e45525348495000000000000000
-	bytes32 internal constant CONTRACT_OBJECT_OWNERSHIP = "CONTRACT_OBJECT_OWNERSHIP";
-	// 0x434f4e54524143545f544f4b454e5f5553450000000000000000000000000000
-	bytes32 internal constant CONTRACT_TOKEN_USE = "CONTRACT_TOKEN_USE";
-	// 0x434f4e54524143545f494e5445525354454c4c41525f454e434f444552000000
-	bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
-
-
     function maxMiners() public view returns (uint256) {
         return LibMaxMinersStorage.getStorage().maxMiners;
     }
@@ -42,6 +34,27 @@ contract Apostle {
 
     function getMinerResource(uint256 _apostleTokenId) public view returns (address) {
         return LibMinerStorage.getStorage().miner2Index[_apostleTokenId].resource;
+    }
+
+	function getMinerOnLand(uint256 _landId, address _resource, uint256 _index) public view returns (uint256) {
+        return LibMineStateStorage.getStorage(_landId).miners[_resource][_index];
+	}
+
+    function land2ResourceMineState(uint256 _landId) public view returns (uint256, uint256, uint256, uint128, uint64, uint64) {
+        LibMineStateStorage.Storage storage stor = LibMineStateStorage.getStorage(_landId);
+        return (
+            stor.lastUpdateSpeedInSeconds,
+            stor.lastDestoryAttenInSeconds,
+            stor.industryIndex,
+            stor.lastUpdateTime,
+            stor.totalMiners,
+            stor.maxMiners
+        );
+    }
+
+    function miner2Index(uint256 _apostleTokenId) public view returns (uint256, address, uint64) {
+        LibMinerStorage.MinerStatus memory sts = LibMinerStorage.getStorage().miner2Index[_apostleTokenId];
+        return (sts.landTokenId, sts.resource, sts.indexInResource);
     }
 
 }

@@ -17,6 +17,10 @@ contract LandRSApostle is DSAuth, Registry, Apostle {
 	event StopMining(uint256 minerTokenId, uint256 landId, address _resource, uint256 strength);
     event SetMaxMiner(uint256 maxMiners);
 
+	bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
+	bytes32 internal constant CONTRACT_OBJECT_OWNERSHIP = "CONTRACT_OBJECT_OWNERSHIP";
+	bytes32 internal constant CONTRACT_TOKEN_USE = "CONTRACT_TOKEN_USE";
+
 	function setMaxMiners(uint256 _maxMiners) public auth {
 		require(_maxMiners > maxMiners(), "Land: INVALID_MAXMINERS");
 		LibMaxMinersStorage.getStorage().maxMiners = _maxMiners;

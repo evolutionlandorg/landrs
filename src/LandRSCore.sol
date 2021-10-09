@@ -1,72 +1,119 @@
 pragma solidity ^0.6.7;
 
 import "zeppelin-solidity/utils/Address.sol";
-import "./common/Mine.sol";
 import "./common/Registry.sol";
+import "./common/DSAuth.sol";
+import "./common/Mine.sol";
 
-contract LandRSCore is Registry, Mine {
+contract LandRSCore is DSAuth, Registry, Mine {
 
-    fallback() external payable {
-        bytes4 selector = msg.sig;
-        if (selector == hex"5ca1bc12" // bytes4(keccak256("startMining(uint256,uint256,address)"))
-         || selector == hex"3b714199" // bytes4(keccak256("stopMining(uint256)"))
-         || selector == hex"4d474898" // bytes4(keccak256("mine(uint256)"))
-         || selector == hex"f23bcebc" // bytes4(keccak256("claimLandResource(uint256)"))
-         || selector == hex"0cfacb57" // bytes4(keccak256("claimItemResource(address,uint256)"))
+    bytes32 internal constant CONTRACT_LANDRS_APOSTLE = "CONTRACT_LANDRS_APOSTLE";
+    bytes32 internal constant CONTRACT_LANDRS_MINE = "CONTRACT_LANDRS_MINE";
+    bytes32 internal constant CONTRACT_LANDRS_BAR = "CONTRACT_LANDRS_BAR";
 
-           ) {
-            address landMine = registry().addressOf(CONTRACT_LAND_MINE);
-            Address.functionDelegateCall(landMine, msg.data, "LandRSCore: StartMining call failed");
+
+    function setMaxMiners(uint256) external {
+        address landRSApostle = registry().addressOf(CONTRACT_LANDRS_APOSTLE);
+        Address.functionDelegateCall(landRSApostle, msg.data, "LandRSCore: SetMaxMiner call failed");
+    }
+
+    function startMining(uint256,uint256,address) public {
+        address landRSApostle = registry().addressOf(CONTRACT_LANDRS_APOSTLE);
+        Address.functionDelegateCall(landRSApostle, msg.data, "LandRSCore: StartMining call failed");
+    }
+
+    function activityStopped(uint256) external {
+        address landRSApostle = registry().addressOf(CONTRACT_LANDRS_APOSTLE);
+        Address.functionDelegateCall(landRSApostle, msg.data, "LandRSCore: ActivityStopped call failed");
+    }
+
+    function stopMining(uint256) external {
+        address landRSApostle = registry().addressOf(CONTRACT_LANDRS_APOSTLE);
+        Address.functionDelegateCall(landRSApostle, msg.data, "LandRSCore: StopMining call failed");
+    }
+
+    function setMaxAmount(uint256) external {
+        address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
+        Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: SetMaxAmount call failed");
+    }
+
+    function divest(uint256,uint256) public {
+        address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
+        Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: Divest call failed");
+    }
+
+    function equip(uint256,address,uint256,address,uint256) external {
+        address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
+        Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: Equip call failed");
+    }
+
+    function mine(uint256) external {
+        address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
+        Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: Mine call failed");
+    }
+
+    function claimLandResource(uint256) public {
+        address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
+        Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: ClaimLandResource call failed");
+    }
+
+    function claimItemResource(address,uint256) public {
+        address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
+        Address.functionDelegateCall(landRSMine, msg.data, "ClaimItemResource: StartMining call failed");
+    }
+
+	function batchClaimLandResource(uint256[] calldata _landTokenIds) external {
+		uint256 length = _landTokenIds.length;
+		for (uint256 i = 0; i < length; i++) {
+			claimLandResource(_landTokenIds[i]);
+		}
+	}
+
+    function batchClaimItemResource(address[] calldata _itemTokens, uint256[] calldata _itemIds) external {
+        require(_itemTokens.length == _itemIds.length, "Land: INVALID_LENGTH");
+        uint256 length = _itemTokens.length;
+        for (uint256 i = 0; i < length; i++) {
+            claimItemResource(_itemTokens[i], _itemIds[i]);
         }
     }
 
-    receive() external payable {}
-			// "_getMinableBalance(uint256,address,uint256,uint256)": "8c17ac7e",
-			// "activityStopped(uint256)": "6086e7f8",
-			// "attenPerDay()": "89adbfcd",
-			// "authority()": "bf7e214f",
-			// "availableItemResources(address,uint256,address[])": "cd4b98cd",
-			// "availableLandResources(uint256,address[])": "487f4cf3",
-			// "batchClaimLandResource(uint256[])": "341b989c",
-			// "batchStartMining(uint256[],uint256[],address[])": "c217cd08",
-			// "devestAndClaim(address,uint256,uint256)": "00762b77",
-			// "divest(uint256,uint256)": "4696c749",
-			// "enhanceStrengthRateByIndex(address,uint256,uint256)": "993ac21a",
-			// "enhanceStrengthRateOf(address,uint256)": "33372e46",
-			// "equip(uint256,address,uint256,address,uint256)": "8be90ffb",
-			// "getBarItem(uint256,uint256)": "09d367f1",
-			// "getBarMiningStrength(uint256,address,uint256)": "78bf8a14",
-			// "getBarRate(uint256,address,uint256)": "de5d944f",
-			// "getBarsMiningStrength(uint256,address)": "023fee2f",
-			// "getBarsRate(uint256,address)": "a927f8a0",
-			// "getItemMinedBalance(address,uint256,address)": "d7f130e5",
-			// "getLandIdByItem(address,uint256)": "5849c0c6",
-			// "getLandMinedBalance(uint256,address)": "55efbeca",
-			// "getLandMiningStrength(uint256,address)": "e155b997",
-			// "getMinerOnLand(uint256,address,uint256)": "7fa64184",
-			// "getReleaseSpeed(uint256,address,uint256)": "e822f478",
-			// "getTotalMiningStrength(uint256,address)": "67361058",
-			// "initializeContract(address,uint256)": "9a4f386c",
-			// "isNotProtect(address,uint256)": "fb901549",
-			// "itemId2Status(address,uint256)": "cdbcec98",
-			// "itemMinedBalance(address,uint256,address)": "fde0cc8b",
-			// "land2BarRate(uint256,address,uint256)": "db6816a8",
-			// "land2ResourceMineState(uint256)": "a3d2e924",
-			// "landId2Bars(uint256,uint256)": "72bd9c45",
-			// "landWorkingOn(uint256)": "462c0ba8",
-			// "maxAmount()": "5f48f393",
-			// "maxMiners()": "db6fccda",
-			// "mine(uint256)": "4d474898",
-			// "miner2Index(uint256)": "60fca6c2",
-			// "owner()": "8da5cb5b",
-			// "protectPeriod(address,uint256)": "8be1aafb",
-			// "recoverAttenPerDay()": "ea8b35ab",
-			// "registry()": "7b103999",
-			// "resourceReleaseStartTime()": "05f506d5",
-			// "setAuthority(address)": "7a9e5e4b",
-			// "setMaxAmount(uint256)": "4fe47f70",
-			// "setMaxMiners(uint256)": "a9476eda",
-			// "setOwner(address)": "13af4035",
-			// "updateMinerStrengthWhenStart(uint256)": "8d57d41a",
-			// "updateMinerStrengthWhenStop(uint256)": "06b2539f"
+	function batchStartMining(uint256[] calldata _tokenIds, uint256[] calldata _landTokenIds, address[] calldata _resources) external {
+		require(_tokenIds.length == _landTokenIds.length && _landTokenIds.length == _resources.length, "input error");
+		uint256 length = _tokenIds.length;
+		for (uint256 i = 0; i < length; i++) {
+			startMining(_tokenIds[i], _landTokenIds[i], _resources[i]);
+		}
+	}
+
+	function devestAndClaim(address _itemToken, uint256 _tokenId, uint256 _index) external {
+		divest(_tokenId, _index);
+		claimItemResource(_itemToken, _tokenId);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+	function getReleaseSpeed(uint256,address,uint256) external view {
+        address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
+        Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: getReleaseSpeed call failed");
+    }
+
+    function availableItemResources(address,uint256,address[] calldata) external view {
+        address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
+        Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: AvailableItemResources call failed");
+    }
+
+	function availableLandResources(uint256,address[] calldata) external view {
+        address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
+        Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: AvailableLandResources call failed");
+    }
+
+	function enhanceStrengthRateByIndex(address,uint256,uint256) external view {
+        address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
+        Address.functionStaticCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateByIndex call failed");
+    }
+
+	function enhanceStrengthRateOf(address,uint256) external view {
+        address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
+        Address.functionStaticCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateOf call failed");
+    }
 }

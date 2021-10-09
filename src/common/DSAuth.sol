@@ -8,11 +8,6 @@ contract DSAuthEvents {
     event LogSetOwner     (address indexed owner);
 }
 
-/**
- * @title DSAuth
- * @dev The DSAuth contract is reference implement of https://github.com/dapphub/ds-auth
- * But in the isAuthorized method, the src from address(this) is remove for safty concern.
- */
 contract DSAuth is Owner, Authority, DSAuthEvents {
 
     function setOwner(address owner_)

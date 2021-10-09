@@ -5,7 +5,6 @@ import "./interfaces/IMetaDataTeller.sol";
 import "./interfaces/ILandRSMine.sol";
 import "./interfaces/ILandBase.sol";
 import "./interfaces/IERC721.sol";
-import "./storage/LibItemBalanceStorage.sol";
 import "./storage/LibItemStatusStorage.sol";
 import "./storage/LibMaxAmountStorage.sol";
 import "./storage/LibBarRateStorage.sol";
@@ -21,8 +20,18 @@ contract LandRSBar is DSAuth, Registry, ItemBar {
 	event StopBarMining(uint256 barIndex, uint256 landId, address rate);
     event SetMaxLandBar(uint256 maxAmount);
 
-	// 0x55494e545f4954454d4241525f50524f544543545f504552494f440000000000
-	bytes32 public constant UINT_ITEMBAR_PROTECT_PERIOD = "UINT_ITEMBAR_PROTECT_PERIOD";
+	bytes32 internal constant CONTRACT_INTERSTELLAR_ENCODER = "CONTRACT_INTERSTELLAR_ENCODER";
+	bytes32 internal constant CONTRACT_OBJECT_OWNERSHIP = "CONTRACT_OBJECT_OWNERSHIP";
+	bytes32 internal constant CONTRACT_METADATA_TELLER = "CONTRACT_METADATA_TELLER";
+	bytes32 internal constant CONTRACT_LAND_BASE = "CONTRACT_LAND_BASE";
+	bytes32 internal constant FURNACE_ITEM_MINE_FEE = "FURNACE_ITEM_MINE_FEE";
+	bytes32 internal constant UINT_ITEMBAR_PROTECT_PERIOD = "UINT_ITEMBAR_PROTECT_PERIOD";
+
+	function setMaxAmount(uint256 _maxAmount) public auth {
+        require(_maxAmount > maxAmount(), "Furnace: INVALID_MAXAMOUNT");
+        LibMaxAmountStorage.getStorage().maxAmount = _maxAmount;
+        emit SetMaxLandBar(maxAmount());
+	}
 
 	/**
      * @dev Equip function, A NFT can equip to EVO Bar (LandBar or ApostleBar).
@@ -171,12 +180,6 @@ contract LandRSBar is DSAuth, Registry, ItemBar {
 			bar.token,
 			bar.id
 		);
-	}
-
-	function setMaxAmount(uint256 _maxAmount) public auth {
-        require(_maxAmount > maxAmount(), "Furnace: INVALID_MAXAMOUNT");
-        LibMaxAmountStorage.getStorage().maxAmount = _maxAmount;
-        emit SetMaxLandBar(maxAmount());
 	}
 
 	function enhanceStrengthRateByIndex(address _resource, uint256 _tokenId, uint256 _index) public view returns (uint256) {
