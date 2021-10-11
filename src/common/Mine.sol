@@ -4,6 +4,7 @@ import "../storage/LibRecoverAttenStorage.sol";
 import "../storage/LibAttenPerDayStorage.sol";
 import "../storage/LibRegistryStorage.sol";
 import "../storage/LibReleaseStorage.sol";
+import "../storage/LibERC165Storage.sol";
 import "../storage/LibSlot2Storage.sol";
 import "../storage/LibAuthStorage.sol";
 import "./ItemBar.sol";
@@ -23,6 +24,10 @@ contract Mine is ItemBar {
     }
 
     ///////////////////////////////////////////////////////////////////////
+
+    function supportsInterface(bytes4 _interfaceId) public view returns (bool) {
+        return LibERC165Storage.getStorage().supportedInterfaces[_interfaceId];
+    }
 
     function resourceReleaseStartTime() public view returns (uint256) {
         return LibReleaseStorage.getStorage().resourceReleaseStartTime;
