@@ -19,7 +19,7 @@ contract LandRSCore is DSAuth, Registry, Mine {
 
     function startMining(uint256 tokenId, uint256 landTokenId, address resource) public {
         address landRSApostle = registry().addressOf(CONTRACT_LANDRS_APOSTLE);
-        Address.functionDelegateCall(landRSApostle, abi.encodeWithSelector(msg.sig, tokenId, landTokenId, resource), "LandRSCore: StartMining call failed");
+        Address.functionDelegateCall(landRSApostle, abi.encodeWithSelector(this.startMining.selector, tokenId, landTokenId, resource), "LandRSCore: StartMining call failed");
     }
 
     function activityStopped(uint256) external {
@@ -39,7 +39,7 @@ contract LandRSCore is DSAuth, Registry, Mine {
 
     function divest(uint256 tokenId, uint256 index) public {
         address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
-        Address.functionDelegateCall(landRSBar, abi.encodeWithSelector(msg.sig, tokenId, index), "LandRSCore: Divest call failed");
+        Address.functionDelegateCall(landRSBar, abi.encodeWithSelector(this.divest.selector, tokenId, index), "LandRSCore: Divest call failed");
     }
 
     function equip(uint256,address,uint256,address,uint256) external {
@@ -54,12 +54,12 @@ contract LandRSCore is DSAuth, Registry, Mine {
 
     function claimLandResource(uint256 landId) public {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionDelegateCall(landRSMine, abi.encodeWithSelector(msg.sig, landId), "LandRSCore: ClaimLandResource call failed");
+        Address.functionDelegateCall(landRSMine, abi.encodeWithSelector(this.claimLandResource.selector, landId), "LandRSCore: ClaimLandResource call failed");
     }
 
     function claimItemResource(address token, uint256 tokenId) public {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionDelegateCall(landRSMine, abi.encodeWithSelector(msg.sig, token, tokenId), "LandRSCore: ClaimItemResource call failed");
+        Address.functionDelegateCall(landRSMine, abi.encodeWithSelector(this.claimItemResource.selector, token, tokenId), "LandRSCore: ClaimItemResource call failed");
     }
 
     function batchClaimLandResource(uint256[] calldata landTokenIds) external {
