@@ -92,28 +92,28 @@ contract LandRSCore is DSAuth, Registry, Mine {
 
     /////////////////////////////////////////////////////////////////////////////////////////
 
-    function getReleaseSpeed(uint256,address,uint256) external view {
+    function getReleaseSpeed(uint256,address,uint256) external returns (bytes memory) {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: getReleaseSpeed call failed");
+        return Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: getReleaseSpeed call failed");
     }
 
-    function availableItemResources(address,uint256,address[] calldata) external view {
+    function availableItemResources(address,uint256,address[] calldata) external returns (bytes memory) {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: AvailableItemResources call failed");
+        return Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: AvailableItemResources call failed");
     }
 
-    function availableLandResources(uint256,address[] calldata) external view {
+    function availableLandResources(uint256,address[] calldata) external returns (bytes memory) {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionStaticCall(landRSMine, msg.data, "LandRSCore: AvailableLandResources call failed");
+        return Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: AvailableLandResources call failed");
     }
 
-    function enhanceStrengthRateByIndex(address,uint256,uint256) external view {
+    function enhanceStrengthRateByIndex(address,uint256,uint256) external returns (bytes memory) {
         address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
-        Address.functionStaticCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateByIndex call failed");
+        return Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateByIndex call failed");
     }
 
-    function enhanceStrengthRateOf(address,uint256) external view {
+    function enhanceStrengthRateOf(address,uint256) external returns (bytes memory) {
         address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
-        Address.functionStaticCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateOf call failed");
+        return Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: EnhanceStrengthRateOf call failed");
     }
 }
