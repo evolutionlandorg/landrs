@@ -17,9 +17,9 @@ contract LandRSCore is DSAuth, Registry, Mine {
         Address.functionDelegateCall(landRSApostle, msg.data, "LandRSCore: SetMaxMiner call failed");
     }
 
-    function startMining(uint256,uint256,address) public {
+    function startMining(uint256 tokenId, uint256 landTokenId, address resource) public {
         address landRSApostle = registry().addressOf(CONTRACT_LANDRS_APOSTLE);
-        Address.functionDelegateCall(landRSApostle, msg.data, "LandRSCore: StartMining call failed");
+        Address.functionDelegateCall(landRSApostle, abi.encodeWithSelector(msg.sig, tokenId, landTokenId, resource), "LandRSCore: StartMining call failed");
     }
 
     function activityStopped(uint256) external {
@@ -37,9 +37,9 @@ contract LandRSCore is DSAuth, Registry, Mine {
         Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: SetMaxAmount call failed");
     }
 
-    function divest(uint256,uint256) public {
+    function divest(uint256 tokenId, uint256 index) public {
         address landRSBar = registry().addressOf(CONTRACT_LANDRS_BAR);
-        Address.functionDelegateCall(landRSBar, msg.data, "LandRSCore: Divest call failed");
+        Address.functionDelegateCall(landRSBar, abi.encodeWithSelector(msg.sig, tokenId, index), "LandRSCore: Divest call failed");
     }
 
     function equip(uint256,address,uint256,address,uint256) external {
@@ -52,42 +52,42 @@ contract LandRSCore is DSAuth, Registry, Mine {
         Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: Mine call failed");
     }
 
-    function claimLandResource(uint256) public {
+    function claimLandResource(uint256 landId) public {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionDelegateCall(landRSMine, msg.data, "LandRSCore: ClaimLandResource call failed");
+        Address.functionDelegateCall(landRSMine, abi.encodeWithSelector(msg.sig, landId), "LandRSCore: ClaimLandResource call failed");
     }
 
-    function claimItemResource(address,uint256) public {
+    function claimItemResource(address token, uint256 tokenId) public {
         address landRSMine = registry().addressOf(CONTRACT_LANDRS_MINE);
-        Address.functionDelegateCall(landRSMine, msg.data, "ClaimItemResource: StartMining call failed");
+        Address.functionDelegateCall(landRSMine, abi.encodeWithSelector(msg.sig, token, tokenId), "LandRSCore: ClaimItemResource call failed");
     }
 
-    function batchClaimLandResource(uint256[] calldata _landTokenIds) external {
-        uint256 length = _landTokenIds.length;
+    function batchClaimLandResource(uint256[] calldata landTokenIds) external {
+        uint256 length = landTokenIds.length;
         for (uint256 i = 0; i < length; i++) {
-            claimLandResource(_landTokenIds[i]);
+            claimLandResource(landTokenIds[i]);
         }
     }
 
-    function batchClaimItemResource(address[] calldata _itemTokens, uint256[] calldata _itemIds) external {
-        require(_itemTokens.length == _itemIds.length, "Land: INVALID_LENGTH");
-        uint256 length = _itemTokens.length;
+    function batchClaimItemResource(address[] calldata itemTokens, uint256[] calldata itemIds) external {
+        require(itemTokens.length == itemIds.length, "Land: INVALID_LENGTH");
+        uint256 length = itemTokens.length;
         for (uint256 i = 0; i < length; i++) {
-            claimItemResource(_itemTokens[i], _itemIds[i]);
+            claimItemResource(itemTokens[i], itemIds[i]);
         }
     }
 
-    function batchStartMining(uint256[] calldata _tokenIds, uint256[] calldata _landTokenIds, address[] calldata _resources) external {
-        require(_tokenIds.length == _landTokenIds.length && _landTokenIds.length == _resources.length, "input error");
-        uint256 length = _tokenIds.length;
+    function batchStartMining(uint256[] calldata tokenIds, uint256[] calldata landTokenIds, address[] calldata resources) external {
+        require(tokenIds.length == landTokenIds.length && landTokenIds.length == resources.length, "input error");
+        uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; i++) {
-            startMining(_tokenIds[i], _landTokenIds[i], _resources[i]);
+            startMining(tokenIds[i], landTokenIds[i], resources[i]);
         }
     }
 
-    function devestAndClaim(address _itemToken, uint256 _tokenId, uint256 _index) external {
-        divest(_tokenId, _index);
-        claimItemResource(_itemToken, _tokenId);
+    function devestAndClaim(address itemToken, uint256 tokenId, uint256 index) external {
+        divest(tokenId, index);
+        claimItemResource(itemToken, tokenId);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
