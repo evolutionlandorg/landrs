@@ -10,17 +10,19 @@ import "./ItemBar.sol";
 
 contract Mine is ItemBar {
 
-    function singletonLock() public view returns (bool) {
+    function singletonLock() internal view returns (bool) {
         return LibSlot2Storage.getStorage().singletonLock;
     }
 
-    function attenPerDay() public view returns (uint256) {
+    function attenPerDay() internal view returns (uint256) {
         return LibAttenPerDayStorage.getStorage().attenPerDay;
     }
 
-    function recoverAttenPerDay() public view returns (uint256) {
+    function recoverAttenPerDay() internal view returns (uint256) {
         return LibRecoverAttenStorage.getStorage().recoverAttenPerDay;
     }
+
+    ///////////////////////////////////////////////////////////////////////
 
     function resourceReleaseStartTime() public view returns (uint256) {
         return LibReleaseStorage.getStorage().resourceReleaseStartTime;
